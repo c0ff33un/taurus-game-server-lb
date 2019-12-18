@@ -1,0 +1,2 @@
+export SERVER_LIST=localhost:8080,localhost:8081
+go run *.go

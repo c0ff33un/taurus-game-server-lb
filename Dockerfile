@@ -1,6 +1,6 @@
 FROM golang:1.13 AS builder
 WORKDIR /app
-COPY main.go go.mod ./
+COPY . ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o lb .
 
 FROM alpine:latest  

@@ -62,13 +62,7 @@ func lb(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		//Route other requests
-		var scheme string
-		switch {
-		case roomAction.MatchString(path):
-			scheme = "ws"
-		case roomConnection.MatchString(path):
-			scheme = "http"
-		default:
+		if !roomAction.MatchString(path) && !roomConnection.MatchString(path) {
 			log.Println("URL doesn't match any resource")
 			http.Error(w, "URL doesn't match any resource", http.StatusNotFound)
 			return
@@ -82,12 +76,8 @@ func lb(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Server doesn't exists", http.StatusServiceUnavailable)
 			return
 		}
-		switch scheme {
-		case "ws":
-			peer.ServeWS(w, r)
-		case "http":
-			peer.ServeHTTP(w, r)
-		}
+		peer.ServeHTTP(w, r)
+		return
 	}
 	log.Println("Service not available")
 	http.Error(w, "Service not available", http.StatusServiceUnavailable)
@@ -173,19 +163,13 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		wsServerUrl, err := url.Parse("ws" + getSecure() + "://" + tok)
-		if err != nil {
-			log.Fatal(err)
-		}
 
 		serverPool.AddBackend(&Backend{
-			URL:            serverUrl,
-			Alive:          true,
-			ReverseProxy:   createProxy(serverUrl),
-			WsReverseProxy: createProxy(wsServerUrl),
+			URL:          serverUrl,
+			Alive:        true,
+			ReverseProxy: createProxy(serverUrl),
 		})
 		log.Printf("Configured server: %s\n", serverUrl)
-		log.Printf("Configured server: %s\n", wsServerUrl)
 	}
 
 	// create http server

@@ -9,19 +9,14 @@ import (
 
 // Backend holds the data about a server
 type Backend struct {
-	URL            *url.URL
-	Alive          bool
-	mux            sync.RWMutex
-	ReverseProxy   *httputil.ReverseProxy
-	WsReverseProxy *httputil.ReverseProxy
+	URL          *url.URL
+	Alive        bool
+	mux          sync.RWMutex
+	ReverseProxy *httputil.ReverseProxy
 }
 
 func (b *Backend) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b.ReverseProxy.ServeHTTP(w, r)
-}
-
-func (b *Backend) ServeWS(w http.ResponseWriter, r *http.Request) {
-	b.WsReverseProxy.ServeHTTP(w, r)
 }
 
 // SetAlive for this backend
